@@ -1,11 +1,11 @@
-HELP.md
+# Ignore Gradle build files and directories
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
+# Ignore STS (Spring Tool Suite) specific files
 .apt_generated
 .classpath
 .factorypath
@@ -17,7 +17,7 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
+# Ignore IntelliJ IDEA specific files
 .idea
 *.iws
 *.iml
@@ -26,12 +26,18 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### NetBeans ###
+# Ignore NetBeans specific files
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+# Ignore Visual Studio Code specific settings
 .vscode/
+
+# Additional OS-specific and miscellaneous settings
+.DS_Store
+Thumbs.db
+
+.env
