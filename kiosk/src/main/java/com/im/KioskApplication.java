@@ -1,4 +1,4 @@
-package com.im.kiosk;
+package com.im;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
