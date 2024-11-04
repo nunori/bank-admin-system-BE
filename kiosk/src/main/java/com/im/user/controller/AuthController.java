@@ -2,9 +2,13 @@ package com.im.user.controller;
 
 import com.im.user.dto.UserLoginReq;
 import com.im.user.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -13,11 +17,10 @@ public class AuthController {
 
     private final AuthService authService;
 
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginReq loginReq) {
-        String token = authService.login(loginReq);
-        return ResponseEntity.ok("Bearer " + token);
+        Map<String, Object> response = authService.login(loginReq); // 토큰 및 deptId 반환
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh-token")
