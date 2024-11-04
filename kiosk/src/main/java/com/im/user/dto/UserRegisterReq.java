@@ -2,15 +2,13 @@ package com.im.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
+@Setter
 public class UserRegisterReq {
 
     @NotBlank(message = "소속 코드는 필수입니다.")
@@ -31,4 +29,5 @@ public class UserRegisterReq {
     @NotBlank(message = "행번은 필수입니다.")
     @Size(max = 7, message = "행번은 최대 7자입니다.")
     private String userNumber;
+
 }
