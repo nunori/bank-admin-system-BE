@@ -39,8 +39,8 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/register", "/api/auth/login").permitAll()
-                        .requestMatchers("/api/headquarters/**").hasAnyAuthority("ROLE_DEPT_01")
-                        .requestMatchers("/api/branch/**").hasAuthority("ROLE_DEPT_02")
+                        .requestMatchers("/api/dashboard/**").hasAnyAuthority("ROLE_DEPT_01")
+                        .requestMatchers("/api/kiosk/**").hasAuthority("ROLE_DEPT_02")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class); // 필터 추가

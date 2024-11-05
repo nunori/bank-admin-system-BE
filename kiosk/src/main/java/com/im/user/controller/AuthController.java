@@ -2,12 +2,10 @@ package com.im.user.controller;
 
 import com.im.user.dto.UserLoginReq;
 import com.im.user.service.AuthService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController

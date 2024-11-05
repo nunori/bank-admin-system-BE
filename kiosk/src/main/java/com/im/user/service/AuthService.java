@@ -23,6 +23,7 @@ public class AuthService {
         System.out.println("로그인 시도: " + loginReq.getUserNumber());
         User user = userRepository.findByUserNumber(loginReq.getUserNumber())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        System.out.println("FindByUserNumber: " + user);
 
         if(!passwordEncoder.matches(loginReq.getUserPassword(), user.getUserPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
