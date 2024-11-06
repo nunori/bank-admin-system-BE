@@ -21,14 +21,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userNumber) throws UsernameNotFoundException {
-        return loadUserByUserNumber(userNumber); // 하나의 메서드로 통합
-    }
-
-    public UserDetails loadUserByUserNumber(String userNumber) throws UsernameNotFoundException {
         User user = userRepository.findByUserNumber(userNumber)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with userNumber: " + userNumber));
 
-        Set<GrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_DEPT_" + user.getDeptId()));
+        Set<GrantedAuthority> authorities = Collections.singleton(
+                new SimpleGrantedAuthority("ROLE_DEPT_" + user.getDeptCode())
+        );
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUserNumber(),
@@ -36,5 +34,4 @@ public class CustomUserDetailsService implements UserDetailsService {
                 authorities
         );
     }
-
 }
