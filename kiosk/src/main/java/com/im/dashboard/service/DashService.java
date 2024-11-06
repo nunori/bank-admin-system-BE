@@ -78,4 +78,8 @@ public class DashService {
         return avgWaitTimes;
     }
 
+    public Integer getBranchCustomerCount(String deptId, LocalDate startDate, LocalDate endDate) {
+        return dashRepository.countByBranchAndDate(deptId, startDate, endDate);
+    }
+
 }

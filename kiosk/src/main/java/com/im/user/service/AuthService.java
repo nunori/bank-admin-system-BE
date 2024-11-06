@@ -38,10 +38,13 @@ public class AuthService {
             System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
         }
 
-        String token = jwtUtil.generateToken(user.getUserNumber(), claims);
+        String accessToken = jwtUtil.generateToken(user.getUserNumber(), claims);
         Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
+        response.put("accessToken", accessToken);
         response.put("deptId", user.getDeptId());
+        response.put("userName", user.getUserName());
+        response.put("dvcd", user.getUserDvcd());
+        response.put("userNumber", user.getUserNumber());
 
         return response;
     }

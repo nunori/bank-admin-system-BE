@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserLoginRes {
-    private String name;
+    private String userName;
     private String deptId;
     private String dvcd;
-    private String number;
+    private String userNumber;
     private String accessToken;
     private String refreshToken;
 }

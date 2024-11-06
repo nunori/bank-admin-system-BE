@@ -45,4 +45,10 @@ public interface DashRepository extends JpaRepository<ConsultationHistory, Consu
             "ORDER BY hour", nativeQuery = true)
     List<Object[]> averageWaitTimeByHourForYear(@Param("deptId") String deptId,
                                                 @Param("date") LocalDate date);
+
+    @Query("SELECT COUNT(ch) FROM ConsultationHistory ch " +
+            "WHERE ch.id.deptId = :deptId AND ch.id.crdt BETWEEN :startDate AND :endDate")
+    Integer countByBranchAndDate(@Param("deptId") String deptId,
+                                 @Param("startDate") LocalDate startDate,
+                                 @Param("endDate") LocalDate endDate);
 }

@@ -1,12 +1,16 @@
 package com.im.dashboard.controller;
 
+import com.im.dashboard.dto.BranchCustomerCountReq;
 import com.im.dashboard.dto.CustomerCountReq;
 import com.im.dashboard.dto.WaitTimeAvgByHourReq;
+import com.im.dashboard.repository.DashRepository;
 import com.im.dashboard.service.DashService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -28,5 +32,10 @@ public class DashController {
         return ResponseEntity.ok(avgWaitTime);
     }
 
-//    @PostMapping("/")
+    @PostMapping("/customers/count/date-range")
+    public ResponseEntity<Integer> branchCustomerCount(@RequestBody BranchCustomerCountReq request) {
+        Integer customersCount = dashService.getBranchCustomerCount(request.getDeptId(), request.getStartDate(), request.getEndDate());
+        return ResponseEntity.ok(customersCount);
+    }
+
 }
