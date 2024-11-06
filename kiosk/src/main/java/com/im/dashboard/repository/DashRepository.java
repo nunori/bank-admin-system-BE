@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface DashRepository extends JpaRepository<ConsultationHistory, ConsultationHistoryId> {
 
@@ -62,4 +63,5 @@ public interface DashRepository extends JpaRepository<ConsultationHistory, Consu
             @Param("deptId") Integer deptId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
 }
