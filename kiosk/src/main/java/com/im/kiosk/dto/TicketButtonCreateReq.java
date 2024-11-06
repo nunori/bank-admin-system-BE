@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class TicketButtonCreateReq {
     private Integer deptId;
     private String buttonName;
+    private String buttonDescription;
     private int buttonPosition;
     private boolean visible;
     private String updatedBy;

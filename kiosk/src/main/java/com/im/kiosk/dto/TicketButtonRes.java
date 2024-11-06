@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TicketButtonUpdateReq {
+public class TicketButtonRes {
 
-    private int deptId;
     private int ticketButtonId;
+    private String buttonName;
     private String buttonDescription;
-    private int position;
+    private int buttonPosition;
     private boolean visible;
 }
