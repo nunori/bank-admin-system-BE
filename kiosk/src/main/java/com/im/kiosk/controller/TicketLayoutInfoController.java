@@ -1,6 +1,7 @@
 package com.im.kiosk.controller;
 
 import com.im.kiosk.dto.TicketButtonCreateReq;
+import com.im.kiosk.dto.TicketButtonRes;
 import com.im.kiosk.dto.TicketButtonUpdateReq;
 import com.im.kiosk.entity.TicketLayoutInfo;
 import com.im.kiosk.service.TicketLayoutInfoService;
@@ -18,8 +19,8 @@ public class TicketLayoutInfoController {
     private final TicketLayoutInfoService ticketLayoutInfoService;
 
     @GetMapping("/{deptId}")
-    public ResponseEntity<List<TicketLayoutInfo>> buttonsGetByDeptId(@PathVariable int deptId) {
-        List<TicketLayoutInfo> buttons = ticketLayoutInfoService.getButtonsByDeptId(deptId);
+    public ResponseEntity<List<TicketButtonRes>> buttonsGetByDeptId(@PathVariable int deptId) {
+        List<TicketButtonRes> buttons = ticketLayoutInfoService.getButtonsByDeptId(deptId);
         return ResponseEntity.ok(buttons);
     }
 
@@ -29,10 +30,9 @@ public class TicketLayoutInfoController {
         return ResponseEntity.ok("Button settings updated successfully");
     }
 
-    // 버튼 생성
     @PostMapping("/create")
-    public ResponseEntity<TicketLayoutInfo> createButton(@RequestBody TicketButtonCreateReq createReq) {
-        TicketLayoutInfo newButton = ticketLayoutInfoService.createButton(createReq);
+    public ResponseEntity<TicketButtonRes> createButton(@RequestBody TicketButtonCreateReq createReq) {
+        TicketButtonRes newButton = ticketLayoutInfoService.createButton(createReq);
         return ResponseEntity.ok(newButton);
     }
 

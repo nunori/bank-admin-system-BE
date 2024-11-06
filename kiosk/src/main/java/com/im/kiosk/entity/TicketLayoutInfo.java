@@ -1,6 +1,5 @@
 package com.im.kiosk.entity;
 
-import com.im.dashboard.entity.SpotInfo;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,6 +33,9 @@ public class TicketLayoutInfo {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "button_description")
+    private String buttonDescription;
 
     private String updatedBy;
 

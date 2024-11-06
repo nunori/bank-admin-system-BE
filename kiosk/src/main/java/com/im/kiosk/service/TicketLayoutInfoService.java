@@ -3,6 +3,7 @@ package com.im.kiosk.service;
 import com.im.dashboard.entity.SpotInfo;
 import com.im.dashboard.repository.SpotInfoRepository;
 import com.im.kiosk.dto.TicketButtonCreateReq;
+import com.im.kiosk.dto.TicketButtonRes;
 import com.im.kiosk.dto.TicketButtonUpdateReq;
 import com.im.kiosk.entity.TicketLayoutInfo;
 import com.im.kiosk.repository.TicketLayoutInfoRepository;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +21,11 @@ public class TicketLayoutInfoService {
     private final TicketLayoutInfoRepository ticketLayoutInfoRepository;
     private final SpotInfoRepository spotInfoRepository;
 
-    public List<TicketLayoutInfo> getButtonsByDeptId(int deptId) {
-        return ticketLayoutInfoRepository.findByDeptIdOrderByButtonPosition(deptId);
+    public List<TicketButtonRes> getButtonsByDeptId(int deptId) {
+        List<TicketLayoutInfo> buttons = ticketLayoutInfoRepository.findByDeptIdOrderByButtonPosition(deptId);
+        return buttons.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -31,26 +36,38 @@ public class TicketLayoutInfoService {
 
             button.setButtonPosition(updateRequest.getPosition());
             button.setVisible(updateRequest.isVisible());
+            button.setButtonDescription(updateRequest.getButtonDescription());
         }
     }
 
     // 버튼 생성 로직
     @Transactional
-    public TicketLayoutInfo createButton(TicketButtonCreateReq createReq) {
-        // SpotInfo 엔티티를 조회하여 외래 키를 설정
+    public TicketButtonRes createButton(TicketButtonCreateReq createReq) {
         SpotInfo spotInfo = spotInfoRepository.findById(createReq.getDeptId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid department ID"));
 
-        // TicketLayoutInfo 엔티티를 생성하여 저장
         TicketLayoutInfo newButton = TicketLayoutInfo.builder()
                 .deptId(createReq.getDeptId())
                 .buttonName(createReq.getButtonName())
+                .buttonDescription(createReq.getButtonDescription())
                 .buttonPosition(createReq.getButtonPosition())
                 .visible(createReq.isVisible())
                 .updatedBy(createReq.getUpdatedBy())
                 .build();
 
-        return ticketLayoutInfoRepository.save(newButton);
+        TicketLayoutInfo savedButton = ticketLayoutInfoRepository.save(newButton);
+        return convertToResponse(savedButton);
+    }
+
+    // Helper method to convert Entity to DTO
+    private TicketButtonRes convertToResponse(TicketLayoutInfo button) {
+        return new TicketButtonRes(
+                button.getTicketButtonId(),
+                button.getButtonName(),
+                button.getButtonDescription(),
+                button.getButtonPosition(),
+                button.isVisible()
+        );
     }
 
     // 버튼 삭제 로직
