@@ -43,7 +43,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (userNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                UserDetails userDetails = this.userDetailsService.loadUserByUserNumber(userNumber);
+                // loadUserByUserNumber를 loadUserByUsername으로 변경
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userNumber);
                 if (jwtUtil.validateToken(jwtToken, userDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

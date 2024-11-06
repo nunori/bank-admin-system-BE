@@ -1,5 +1,6 @@
 package com.im.dashboard.service;
 
+import com.im.dashboard.dto.BranchCustomerCountReq;
 import com.im.dashboard.dto.CustomerCountReq;
 import com.im.dashboard.exception.CustomException;
 import com.im.dashboard.repository.DashRepository;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,47 +20,83 @@ public class DashService {
     private final DashRepository dashRepository;
 
     public Integer calculateCustomerCount(CustomerCountReq countReq) {
-        LocalDate startDate = countReq.getStartDate();
-        LocalDate endDate = countReq.getEndDate();
+        try {
+            Integer deptIdInt = Integer.parseInt(countReq.getDeptId());
+            LocalDate startDate = countReq.getStartDate();
+            LocalDate endDate = countReq.getEndDate();
+            LocalDateTime startDateTime = startDate.atStartOfDay();
+            LocalDateTime endDateTime;
 
-        switch (countReq.getPeriod().toLowerCase()) {
-            case "day":
-                return dashRepository.countCustomersByDeptIdAndDateRange(countReq.getDeptId(), startDate, endDate);
-            case "month":
-                return dashRepository.countCustomersByDeptIdAndDateRange(countReq.getDeptId(), startDate.withDayOfMonth(1), endDate.withDayOfMonth(endDate.lengthOfMonth()));
-            case "year":
-                return dashRepository.countCustomersByDeptIdAndDateRange(countReq.getDeptId(), startDate.withDayOfYear(1), endDate.withMonth(12).withDayOfMonth(31));
-            default:
-                throw new IllegalArgumentException("Invalid period specified: " + countReq.getPeriod());
+            switch (countReq.getPeriod().toLowerCase()) {
+                case "day":
+                    endDateTime = endDate.atTime(23, 59, 59);
+                    break;
+                case "month":
+                    endDateTime = endDate.withDayOfMonth(endDate.lengthOfMonth())
+                            .atTime(23, 59, 59);
+                    break;
+                case "year":
+                    endDateTime = endDate.withMonth(12).withDayOfMonth(31)
+                            .atTime(23, 59, 59);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid period specified: " + countReq.getPeriod());
+            }
+
+            return dashRepository.countCustomersByDeptIdAndDateRange(deptIdInt, startDateTime, endDateTime);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid deptId format: " + countReq.getDeptId());
         }
     }
 
     public List<Double> calculateAverageWaitTimeByPeriod(String deptId, String period, LocalDate date) {
-        switch (period.toLowerCase()) {
-            case "day":
-                return calculateAverageWaitTimeByHourForDay(deptId, date);
-            case "month":
-                return calculateAverageWaitTimeByHourForMonth(deptId, date);
-            case "year":
-                return calculateAverageWaitTimeByHourForYear(deptId, date);
-            default:
-                throw new IllegalArgumentException("Invalid period specified: " + period);
+        try {
+            // String을 Integer로 변환
+            Integer deptIdInt = Integer.parseInt(deptId);
+
+            switch (period.toLowerCase()) {
+                case "day":
+                    return calculateAverageWaitTimeByHourForDay(deptIdInt.toString(), date);
+                case "month":
+                    return calculateAverageWaitTimeByHourForMonth(deptIdInt.toString(), date);
+                case "year":
+                    return calculateAverageWaitTimeByHourForYear(deptIdInt.toString(), date);
+                default:
+                    throw new IllegalArgumentException("Invalid period specified: " + period);
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid deptId format: " + deptId);
         }
     }
 
     private List<Double> calculateAverageWaitTimeByHourForDay(String deptId, LocalDate date) {
-        List<Object[]> results = dashRepository.averageWaitTimeByHourForDay(deptId, date);
-        return extractAvgWaitTimes(results);
+        try {
+            Integer deptIdInt = Integer.parseInt(deptId);
+            List<Object[]> results = dashRepository.averageWaitTimeByHourForDay(deptIdInt, date);
+            return extractAvgWaitTimes(results);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid deptId format: " + deptId, e);
+        }
     }
 
     private List<Double> calculateAverageWaitTimeByHourForMonth(String deptId, LocalDate date) {
-        List<Object[]> results = dashRepository.averageWaitTimeByHourForMonth(deptId, date);
-        return extractAvgWaitTimes(results);
+        try {
+            Integer deptIdInt = Integer.parseInt(deptId);
+            List<Object[]> results = dashRepository.averageWaitTimeByHourForMonth(deptIdInt, date);
+            return extractAvgWaitTimes(results);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid deptId format: " + deptId, e);
+        }
     }
 
     private List<Double> calculateAverageWaitTimeByHourForYear(String deptId, LocalDate date) {
-        List<Object[]> results = dashRepository.averageWaitTimeByHourForYear(deptId, date);
-        return extractAvgWaitTimes(results);
+        try {
+            Integer deptIdInt = Integer.parseInt(deptId);
+            List<Object[]> results = dashRepository.averageWaitTimeByHourForYear(deptIdInt, date);
+            return extractAvgWaitTimes(results);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid deptId format: " + deptId, e);
+        }
     }
 
     private List<Double> extractAvgWaitTimes(List<Object[]> results) {
@@ -78,8 +116,19 @@ public class DashService {
         return avgWaitTimes;
     }
 
-    public Integer getBranchCustomerCount(String deptId, LocalDate startDate, LocalDate endDate) {
-        return dashRepository.countByBranchAndDate(deptId, startDate, endDate);
+    public Integer getBranchCustomerCount(BranchCustomerCountReq request) {
+        try {
+            // deptId String -> Integer 변환
+            Integer deptIdInt = Integer.parseInt(request.getDeptId());
+
+            // LocalDate -> LocalDateTime 변환
+            LocalDateTime startDateTime = request.getStartDate().atStartOfDay();
+            LocalDateTime endDateTime = request.getEndDate().atTime(23, 59, 59);
+
+            return dashRepository.countByBranchAndDate(deptIdInt, startDateTime, endDateTime);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid deptId format: " + request.getDeptId(), e);
+        }
     }
 
 }

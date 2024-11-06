@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @NoArgsConstructor
@@ -17,14 +17,14 @@ import java.util.Objects;
 @Setter
 @Embeddable
 public class ConsultationHistoryId implements Serializable {
-    @Column(name = "TICKET_ID")
-    private Integer ticketId;  // DB에서는 INT 타입
+    @Column(name = "ticket_id")
+    private Integer ticketId;
 
-    @Column(name = "CRDT")
-    private LocalDate crdt;
+    @Column(name = "create_date")
+    private LocalDateTime createDate;
 
-    @Column(name = "DEPT_ID")
-    private String deptId;
+    @Column(name = "dept_id")
+    private Integer deptId;
 
     @Override
     public boolean equals(Object o) {
@@ -32,12 +32,12 @@ public class ConsultationHistoryId implements Serializable {
         if (!(o instanceof ConsultationHistoryId)) return false;
         ConsultationHistoryId that = (ConsultationHistoryId) o;
         return Objects.equals(ticketId, that.ticketId) &&
-                Objects.equals(crdt, that.crdt) &&
+                Objects.equals(createDate, that.createDate) &&  // crdt -> createDate
                 Objects.equals(deptId, that.deptId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ticketId, crdt, deptId);
+        return Objects.hash(ticketId, createDate, deptId);  // crdt -> createDate
     }
 }

@@ -15,35 +15,29 @@ public class ConsultationHistory {
     @EmbeddedId
     private ConsultationHistoryId id;
 
-    @Column(name = "USER_ID", nullable = false)
-    private Long userId;
+    @Column(name = "window_dvcd", nullable = false)  // 컬럼명 변경
+    @Enumerated(EnumType.STRING)
+    private WindowDvcd windowDvcd;
 
-    @Column(name = "KIOSK_ID", nullable = false)
+    @Column(name = "ticket_start_time", nullable = false)  // 컬럼명 변경
+    private LocalDateTime ticketStartTime;  // 변수명도 일관성있게 변경
+
+    @Column(name = "kiosk_id", nullable = false)  // 소문자로 변경
     private Integer kioskId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "WD_DVCD", nullable = true)
-    private WindowDvcd windowDvcd; // Enum 값: "01", "02", "03", "04", "05"
+    @Column(name = "user_number", nullable = false)  // user_id -> user_number로 변경
+    private String userNumber;  // Long -> String으로 변경
 
-    @Column(name = "TICKET_STIME", nullable = true)
-    private LocalDateTime ticketStime;
-
-    @Column(name = "WD_ID", nullable = true)
+    @Column(name = "window_id", nullable = false)  // 컬럼명 변경
     private Integer windowId;
 
+    @Column(name = "consultation_status", nullable = false, columnDefinition = "VARCHAR(255) DEFAULT '00'")  // 컬럼명 변경
     @Enumerated(EnumType.STRING)
-    @Column(name = "CSNL_CD", nullable = true)
-    private ConsultationCode consultationCode; // Enum 값: "00", "01", "02", "03"
+    private ConsultationCode consultationStatus;  // 변수명도 더 명확하게 변경
 
-    @Column(name = "CSNL_START_DT", nullable = true)
-    private LocalDateTime csnlStartDt;
+    @Column(name = "consultation_start_time")  // 컬럼명 변경
+    private LocalDateTime consultationStartTime;  // 변수명도 일관성있게 변경
 
-    @Column(name = "WAIT_TIME", nullable = true)
-    private Integer waitTime;
-
-    @Column(name = "CSNL_END_DT", nullable = true)
-    private LocalDateTime csnlEndDt;
-
-    @Column(name = "CSNL_TIME", nullable = true)
-    private Integer csnlTime;
+    @Column(name = "consultation_end_time")  // 컬럼명 변경
+    private LocalDateTime consultationEndTime;  // 변수명도 일관성있게 변경
 }

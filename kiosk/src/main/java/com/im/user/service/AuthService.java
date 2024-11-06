@@ -20,28 +20,24 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     public Map<String, Object> login(UserLoginReq loginReq) {
-        System.out.println("로그인 시도: " + loginReq.getUserNumber());
         User user = userRepository.findByUserNumber(loginReq.getUserNumber())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        System.out.println("FindByUserNumber: " + user);
 
         if(!passwordEncoder.matches(loginReq.getUserPassword(), user.getUserPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", "ROLE_DEPT_" + user.getDeptId());
+        claims.put("role", "ROLE_DEPT_" + user.getDeptCode());  // deptId 대신 deptCode 사용
         claims.put("deptId", user.getDeptId());
-        System.out.println("user.getDeptId(): " + user.getDeptId());
-
-        for (Map.Entry<String, Object> entry : claims.entrySet()) {
-            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
-        }
+        claims.put("deptCode", user.getDeptCode());
 
         String accessToken = jwtUtil.generateToken(user.getUserNumber(), claims);
+
         Map<String, Object> response = new HashMap<>();
         response.put("accessToken", accessToken);
         response.put("deptId", user.getDeptId());
+        response.put("deptCode", user.getDeptCode());
         response.put("userName", user.getUserName());
         response.put("dvcd", user.getUserDvcd());
         response.put("userNumber", user.getUserNumber());

@@ -17,7 +17,6 @@ public class UserService {
 
     @Transactional
     public void registerUser(UserRegisterReq requestDto) {
-
         if(requestDto.getUserPassword() == null || requestDto.getUserPassword().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be null or empty");
         }
@@ -34,6 +33,7 @@ public class UserService {
         User user = User.builder()
                 .userName(requestDto.getUserName())
                 .deptId(requestDto.getDeptId())
+                .deptCode(requestDto.getDeptCode())  // 추가된 부분
                 .userDvcd(requestDto.getUserDvcd())
                 .userNumber(requestDto.getUserNumber())
                 .userPassword(encodedPassword)
