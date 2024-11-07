@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class SpotInfo {
     @Id
     @Column(name = "dept_id", nullable = false)
-    private Integer deptId;  // String -> Integer로 변경
+    private Integer deptId;
 
     @Column(name = "dept_code", nullable = false)  // 새로 추가
     private String deptCode;
