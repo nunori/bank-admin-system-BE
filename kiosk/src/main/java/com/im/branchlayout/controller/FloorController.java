@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/floors")
+@RequestMapping("/api/branch-layout/floors")
 @RequiredArgsConstructor
 public class FloorController {
 

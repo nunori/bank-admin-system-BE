@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum ElementType {
     window("창구"),
     wall("벽"),
-    entrance("입구");
+    entrance("입구"),
+    kiosk("키오스크");
 
     private final String description;
 

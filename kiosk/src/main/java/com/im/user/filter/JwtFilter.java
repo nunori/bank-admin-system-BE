@@ -8,11 +8,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -26,38 +28,54 @@ public class JwtFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // OPTIONS 요청이나 로그인/회원가입 요청은 필터 적용하지 않음
+        return CorsUtils.isPreFlightRequest(request) ||
+                request.getRequestURI().contains("/api/auth/login") ||
+                request.getRequestURI().contains("/api/users/register");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
-        String authorizationHeader = request.getHeader("Authorization");
 
-        String userNumber = null;
-        String jwtToken = null;
-
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwtToken = authorizationHeader.substring(7);
-            userNumber = jwtUtil.extractUserNumber(jwtToken);
+        // Preflight request 처리
+        if (CorsUtils.isPreFlightRequest(request)) {
+            response.setStatus(HttpStatus.OK.value());
+            return;
         }
 
-        if (userNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            try {
-                // loadUserByUserNumber를 loadUserByUsername으로 변경
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            String userNumber = null;
+            String jwtToken = null;
+
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                jwtToken = authorizationHeader.substring(7);
+                userNumber = jwtUtil.extractUserNumber(jwtToken);
+            }
+
+            if (userNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userNumber);
                 if (jwtUtil.validateToken(jwtToken, userDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            } catch (UsernameNotFoundException e) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
-                return;
-            } catch (Exception e) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: " + e.getMessage());
-                return;
             }
+            filterChain.doFilter(request, response);
+
+        } catch (UsernameNotFoundException e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: " + e.getMessage());
         }
-        filterChain.doFilter(request, response);
     }
 }

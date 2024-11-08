@@ -1,6 +1,5 @@
 package com.im.branchlayout.repository;
 
-import com.im.branchlayout.dto.FloorGetRes;
 import com.im.branchlayout.entity.FloorInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 

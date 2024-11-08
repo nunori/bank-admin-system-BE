@@ -1,16 +1,15 @@
 package com.im.branchlayout.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "grid_info")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Builder
 public class GridInfo {
 
@@ -30,4 +29,27 @@ public class GridInfo {
 
     @Column(name = "grid_height", nullable = false)
     private Integer gridHeight;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    // 업데이트를 위해 Setter 추가 또는 @Setter 어노테이션 사용
+    public void updateGridSize(Integer width, Integer height) {
+        this.gridWidth = width;
+        this.gridHeight = height;
+    }
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

@@ -1,6 +1,5 @@
 package com.im.branchlayout.dto;
 
-import com.im.branchlayout.enums.ElementType;
 import lombok.Getter;
 import lombok.Setter;
 

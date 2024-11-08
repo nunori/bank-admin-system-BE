@@ -1,7 +1,6 @@
 package com.im.branchlayout.controller;
 
 import com.im.branchlayout.dto.*;
-import com.im.branchlayout.entity.ElementInfo;
 import com.im.branchlayout.service.ElementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

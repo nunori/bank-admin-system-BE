@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface ElementRepository extends JpaRepository<ElementInfo, Integer> {
     List<ElementInfo> findByDeptIdAndFloorNumber(Integer deptId, Integer floorNumber);
-
-
 }
