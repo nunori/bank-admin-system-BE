@@ -9,10 +9,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        System.out.println("Configuring CORS");
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // Vue의 포트 번호
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 필요한 모든 메서드 허용
-                .allowedHeaders("*") // 모든 헤더 허용
-                .allowCredentials(true); // 쿠키 및 인증 정보 허용
+//                .allowedOriginPatterns("/*")
+                .allowedOrigins("http://localhost:5173")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+//                .allowedHeaders("Authorization", "Content-Type", "X-Requested-With", "Accept")
+                .allowedHeaders("*")
+//                .exposedHeaders("Authorization")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
