@@ -41,4 +41,4 @@ out/
 Thumbs.db
 
 # env file
-../.env
+.env

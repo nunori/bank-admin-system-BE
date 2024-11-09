@@ -3,7 +3,6 @@ package com.im.user.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +10,6 @@ import java.util.Date;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class JwtUtil {
 
     @Value("${jwt.secret}")
