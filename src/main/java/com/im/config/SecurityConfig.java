@@ -58,15 +58,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.addAllowedOrigin("http://localhost:5173");
-                    config.addAllowedMethod("*");
-                    config.addAllowedHeader("*");
-                    config.setAllowCredentials(true);
-                    config.setMaxAge(3600L);
-                    return config;
-                }))
+                .cors()
+                .and()
+//                .cors(cors -> cors.configurationSource(request -> {
+//                    CorsConfiguration config = new CorsConfiguration();
+//                    config.addAllowedOrigin("https://www.admin-system.shop");
+//                    config.addAllowedOrigin("http://localhost:5173");
+//                    config.addAllowedMethod("*");
+//                    config.addAllowedHeader("*");
+//                    config.setAllowCredentials(true);
+//                    config.setMaxAge(3600L);
+//                    return config;
+//                }))
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/register", "/auth/login").permitAll()

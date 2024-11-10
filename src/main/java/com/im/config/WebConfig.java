@@ -12,11 +12,16 @@ public class WebConfig implements WebMvcConfigurer {
         System.out.println("Configuring CORS");
         registry.addMapping("/**")
 //                .allowedOriginPatterns("/*")
-                .allowedOrigins("http://localhost:5173", "https://admin-system.shop", "https://www.admin-system.shop")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "https://admin-system.shop",
+                        "https://www.admin-system.shop",
+                        "https://bank-admin-system-fe.vercel.app"
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-//                .allowedHeaders("Authorization", "Content-Type", "X-Requested-With", "Accept")
-                .allowedHeaders("*")
-//                .exposedHeaders("Authorization")
+                .allowedHeaders("Authorization", "Content-Type", "X-Requested-With", "Accept")
+//                .allowedHeaders("*")
+                .exposedHeaders("Authorization")
                 .allowCredentials(true)
                 .maxAge(3600);
     }
