@@ -29,9 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // OPTIONS 요청이나 로그인/회원가입 요청은 필터 적용하지 않음
-        return CorsUtils.isPreFlightRequest(request) ||
-                request.getRequestURI().contains("/api/auth/login") ||
+        return request.getRequestURI().contains("/api/auth/login") ||
                 request.getRequestURI().contains("/api/users/register");
     }
 
@@ -44,7 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // Preflight request 처리
         if (CorsUtils.isPreFlightRequest(request)) {
-            response.setStatus(HttpStatus.OK.value());
+            filterChain.doFilter(request, response);
             return;
         }
 
