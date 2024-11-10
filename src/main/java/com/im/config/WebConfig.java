@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         System.out.println("Configuring CORS");
         registry.addMapping("/**")
 //                .allowedOriginPatterns("/*")
-                .allowedOrigins("http://localhost:5173")
+                .allowedOrigins("http://localhost:5173", "https://admin-system.shop", "https://www.admin-system.shop")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
 //                .allowedHeaders("Authorization", "Content-Type", "X-Requested-With", "Accept")
                 .allowedHeaders("*")
