@@ -25,7 +25,7 @@ public class JwtUtil {
     @PostConstruct
     private void init() {
         this.secretKey = env.getProperty("jwt.secret");
-        System.out.println("Loaded JWT Secret Key: " + secretKey); // 테스트용 출력, 이후 보안을 위해 제거
+//        System.out.println("Loaded JWT Secret Key: " + secretKey); // 테스트용 출력, 이후 보안을 위해 제거
     }
 
     public String generateToken(String userNumber, Map<String, Object> claims) {
