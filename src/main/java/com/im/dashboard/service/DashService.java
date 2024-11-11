@@ -1,23 +1,26 @@
 package com.im.dashboard.service;
 
 import com.im.dashboard.dto.BranchCustomerCountReq;
+import com.im.dashboard.dto.BranchesRes;
 import com.im.dashboard.dto.CustomerCountReq;
+import com.im.dashboard.entity.SpotInfo;
 import com.im.dashboard.exception.CustomException;
 import com.im.dashboard.repository.DashRepository;
+import com.im.dashboard.repository.SpotInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class DashService {
 
     private final DashRepository dashRepository;
+    private final SpotInfoRepository spotInfoRepository;
 
     public Integer calculateCustomerCount(CustomerCountReq countReq) {
         try {
@@ -129,6 +132,57 @@ public class DashService {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid deptId format: " + request.getDeptId(), e);
         }
+    }
+
+    public List<Map<String, Object>> getAllBranches() {
+        List<Object[]> results = spotInfoRepository.findAllDeptIdAndDeptName();
+        return results.stream().map(row -> {
+            Map<String, Object> branch = new HashMap<>();
+            branch.put("dept_id", row[0]);
+            branch.put("dept_name", row[1]);
+            return branch;
+        }).toList();
+    }
+
+    public List<Map<String, String>> getSummaryData(String deptId, LocalDate startDate, LocalDate endDate) {
+        Integer customerCount = dashRepository.getCustomerCount(deptId, startDate, endDate);
+        Double averageWaitTime = dashRepository.getAverageWaitTime(deptId, startDate, endDate);
+
+        List<Map<String, String>> summaryData = new ArrayList<>();
+
+        Map<String, String> customerData = new HashMap<>();
+        customerData.put("title", "내점 고객 수");
+        customerData.put("value", customerCount + "명");
+        summaryData.add(customerData);
+
+        Map<String, String> waitTimeData = new HashMap<>();
+        waitTimeData.put("title", "대기 시간 평균");
+        waitTimeData.put("value", averageWaitTime + "분");
+        summaryData.add(waitTimeData);
+
+        return summaryData;
+    }
+
+    public Map<String, Object> getCustomerDataByWeek(String deptId, LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = dashRepository.findWeeklyCustomerData(deptId, startDate, endDate);
+
+        // 요일 라벨 생성
+        List<String> labels = Arrays.asList("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
+
+        // 결과 데이터를 매핑할 리스트
+        List<Integer> data = new ArrayList<>(Collections.nCopies(7, 0));
+
+        for (Object[] result : results) {
+            int dayOfWeek = ((Integer) result[0]) - 1; // 요일 인덱스(1~7) - 1로 보정
+            int count = ((Long) result[1]).intValue(); // 고객 수
+            data.set(dayOfWeek, count);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("labels", labels);
+        response.put("data", data);
+
+        return response;
     }
 
 }

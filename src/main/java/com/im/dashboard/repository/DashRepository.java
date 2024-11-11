@@ -1,5 +1,6 @@
 package com.im.dashboard.repository;
 
+import com.im.dashboard.dto.BranchesRes;
 import com.im.dashboard.entity.ConsultationHistory;
 import com.im.dashboard.entity.ConsultationHistoryId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -64,4 +65,30 @@ public interface DashRepository extends JpaRepository<ConsultationHistory, Consu
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 
+    // 고객 수 조회 쿼리
+    @Query("SELECT COUNT(ch) FROM ConsultationHistory ch " +
+            "WHERE ch.id.deptId = :deptId AND ch.id.createDate BETWEEN :startDate AND :endDate")
+    Integer getCustomerCount(
+            @Param("deptId") String deptId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    // 대기 시간 평균 조회 쿼리
+    @Query(value = "SELECT AVG(TIMESTAMPDIFF(MINUTE, ch.ticketStartTime, ch.consultationStartTime)) " +
+            "FROM consultation_history ch " +
+            "WHERE ch.dept_id = :deptId AND ch.create_date BETWEEN :startDate AND :endDate",
+            nativeQuery = true)
+    Double getAverageWaitTime(
+            @Param("deptId") String deptId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    @Query(value = "SELECT DAYOFWEEK(create_date) AS day_of_week, COUNT(*) AS customer_count " +
+            "FROM consultation_history " +
+            "WHERE dept_id = :deptId " +
+            "AND create_date BETWEEN :startDate AND :endDate " +
+            "GROUP BY day_of_week", nativeQuery = true)
+    List<Object[]> findWeeklyCustomerData(@Param("deptId") String deptId,
+                                          @Param("startDate") LocalDate startDate,
+                                          @Param("endDate") LocalDate endDate);
 }

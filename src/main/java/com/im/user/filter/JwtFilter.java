@@ -30,8 +30,8 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return CorsUtils.isPreFlightRequest(request) ||
-                request.getRequestURI().contains("/api/auth/login") ||
-                request.getRequestURI().contains("/api/users/register");
+                request.getRequestURI().contains("api/auth/login") ||
+                request.getRequestURI().contains("api/users/register");
     }
 
     @Override
@@ -41,7 +41,6 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Preflight request 처리
         if (CorsUtils.isPreFlightRequest(request)) {
             response.setStatus(HttpStatus.OK.value());
             return;

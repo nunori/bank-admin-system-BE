@@ -1,9 +1,7 @@
 package com.im.dashboard.controller;
 
-import com.im.dashboard.dto.BranchCustomerCountReq;
-import com.im.dashboard.dto.BranchesRes;
-import com.im.dashboard.dto.CustomerCountReq;
-import com.im.dashboard.dto.WaitTimeAvgByHourReq;
+import com.im.dashboard.dto.*;
+import com.im.dashboard.entity.SpotInfo;
 import com.im.dashboard.repository.DashRepository;
 import com.im.dashboard.service.DashService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,9 +38,22 @@ public class DashController {
         return ResponseEntity.ok(customersCount);
     }
 
-//    @GetMapping("/branches")
-//    public ResponseEntity<List<BranchesRes>> getBranches() {
-//        List<BranchesRes> branches = branchService.
-//    }
+    @GetMapping("/branches")
+    public ResponseEntity<List<Map<String, Object>>> getAllBranches() {
+        List<Map<String, Object>> branches = dashService.getAllBranches();
+        return ResponseEntity.ok(branches);
+    }
+
+    @PostMapping("/summary")
+    public ResponseEntity<List<Map<String, String>>> getSummaryData(@RequestBody SummaryRequest request) {
+        List<Map<String, String>> summaryData = dashService.getSummaryData(request.getDeptId(), request.getStartDate(), request.getEndDate());
+        return ResponseEntity.ok(summaryData);
+    }
+
+    @PostMapping("/customers/data")
+    public ResponseEntity<Map<String, Object>> getCustomerData(@RequestBody SummaryRequest request) {
+        Map<String, Object> data = dashService.getCustomerDataByWeek(request.getDeptId(), request.getStartDate(), request.getEndDate());
+        return ResponseEntity.ok(data);
+    }
 
 }
