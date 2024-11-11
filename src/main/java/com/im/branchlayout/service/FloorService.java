@@ -2,10 +2,13 @@ package com.im.branchlayout.service;
 
 import com.im.branchlayout.dto.FloorCreateReq;
 import com.im.branchlayout.dto.FloorGetRes;
+import com.im.branchlayout.dto.FloorUpdateReq;
 import com.im.branchlayout.entity.FloorInfo;
 import com.im.branchlayout.repository.FloorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -35,5 +38,26 @@ public class FloorService {
                 .build();
 
         return floorRepository.save(floorInfo);
+    }
+
+    public FloorInfo updateFloor(FloorUpdateReq request) {
+        FloorInfo floorInfo = floorRepository.findByDeptId(request.getDeptId())
+                .stream()
+                .filter(floor -> floor.getFloorNumber().equals(request.getFloorNumber()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Floor not found"));
+
+        floorInfo.setFloorName(request.getFloorName());
+        return floorRepository.save(floorInfo);
+    }
+
+    public void deleteFloor(Integer deptId, Integer floorNumber) {
+        FloorInfo floorInfo = floorRepository.findByDeptId(deptId)
+                .stream()
+                .filter(floor -> floor.getFloorNumber().equals(floorNumber))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Floor not found"));
+
+        floorRepository.delete(floorInfo);
     }
 }
