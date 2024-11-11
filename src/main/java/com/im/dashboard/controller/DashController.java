@@ -1,15 +1,13 @@
 package com.im.dashboard.controller;
 
+import com.im.branchlayout.dto.WindowCountReq;
+import com.im.branchlayout.service.ElementService;
 import com.im.dashboard.dto.*;
-import com.im.dashboard.entity.SpotInfo;
-import com.im.dashboard.repository.DashRepository;
 import com.im.dashboard.service.DashService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +17,7 @@ import java.util.Map;
 public class DashController {
 
     private final DashService dashService;
+    private final ElementService elementService;
 
     @PostMapping("/customers/count")
     public ResponseEntity<Integer> customerCount(@RequestBody CustomerCountReq countReq) {

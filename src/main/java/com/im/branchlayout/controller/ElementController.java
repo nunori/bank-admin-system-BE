@@ -2,6 +2,7 @@ package com.im.branchlayout.controller;
 
 import com.im.branchlayout.dto.*;
 import com.im.branchlayout.service.ElementService;
+import com.im.branchlayout.dto.WindowCountReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,12 @@ public class ElementController {
     public ResponseEntity<ElementUpdateRes> updateElement(@RequestBody ElementUpdateReq request) {
         ElementUpdateRes updatedElement = elementService.updateElement(request);
         return ResponseEntity.ok(updatedElement);
+    }
+
+    @PostMapping("/window-count")
+    public ResponseEntity<Integer> getWindowCount(@RequestBody WindowCountReq request) {
+        Integer count = elementService.getWindowCount(request.getDeptId(), request.getFloorNumber());
+        return ResponseEntity.ok(count);
     }
 
 }

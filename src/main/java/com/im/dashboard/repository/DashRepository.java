@@ -91,4 +91,7 @@ public interface DashRepository extends JpaRepository<ConsultationHistory, Consu
     List<Object[]> findWeeklyCustomerData(@Param("deptId") String deptId,
                                           @Param("startDate") LocalDate startDate,
                                           @Param("endDate") LocalDate endDate);
+
+
+
 }

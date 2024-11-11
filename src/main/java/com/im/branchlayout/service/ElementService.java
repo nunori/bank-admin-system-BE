@@ -90,4 +90,8 @@ public class ElementService {
                 .elementColor(element.getElementColor())
                 .build();
     }
+
+    public Integer getWindowCount(Integer deptId, Integer floorNumber) {
+        return elementRepository.countWindowsByDeptIdAndFloorNumber(deptId, floorNumber);
+    }
 }
