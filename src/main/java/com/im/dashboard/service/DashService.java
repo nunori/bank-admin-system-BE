@@ -1,10 +1,7 @@
+// DashService.java
 package com.im.dashboard.service;
 
-import com.im.dashboard.dto.BranchCustomerCountReq;
-import com.im.dashboard.dto.BranchesRes;
-import com.im.dashboard.dto.CustomerCountReq;
-import com.im.dashboard.entity.SpotInfo;
-import com.im.dashboard.exception.CustomException;
+import com.im.dashboard.dto.*;
 import com.im.dashboard.repository.DashRepository;
 import com.im.dashboard.repository.SpotInfoRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,166 +21,127 @@ public class DashService {
     private final SpotInfoRepository spotInfoRepository;
 
     public Integer calculateCustomerCount(CustomerCountReq countReq) {
-        try {
-            Integer deptIdInt = Integer.parseInt(countReq.getDeptId());
-            LocalDate startDate = countReq.getStartDate();
-            LocalDate endDate = countReq.getEndDate();
-            LocalDateTime startDateTime = startDate.atStartOfDay();
-            LocalDateTime endDateTime;
+        Integer deptIdInt = Integer.parseInt(countReq.getDeptId());
+        LocalDateTime startDateTime = countReq.getStartDate().atStartOfDay();
+        LocalDateTime endDateTime = resolveEndDateTime(countReq.getPeriod(), countReq.getEndDate());
+        return dashRepository.countCustomersByDeptIdAndDateRange(deptIdInt, startDateTime, endDateTime);
+    }
 
-            switch (countReq.getPeriod().toLowerCase()) {
-                case "day":
-                    endDateTime = endDate.atTime(23, 59, 59);
-                    break;
-                case "month":
-                    endDateTime = endDate.withDayOfMonth(endDate.lengthOfMonth())
-                            .atTime(23, 59, 59);
-                    break;
-                case "year":
-                    endDateTime = endDate.withMonth(12).withDayOfMonth(31)
-                            .atTime(23, 59, 59);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid period specified: " + countReq.getPeriod());
-            }
-
-            return dashRepository.countCustomersByDeptIdAndDateRange(deptIdInt, startDateTime, endDateTime);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid deptId format: " + countReq.getDeptId());
+    public List<Double> calculateAverageWaitTimeByPeriod(WaitTimeAvgByHourReq waitTimeReq) {
+        Integer deptIdInt = Integer.parseInt(waitTimeReq.getDeptId());
+        switch (waitTimeReq.getPeriod().toLowerCase()) {
+            case "day":
+                return extractAvgWaitTimes(dashRepository.averageWaitTimeByHourForDay(deptIdInt, waitTimeReq.getDate()));
+            case "month":
+                return extractAvgWaitTimes(dashRepository.averageWaitTimeByHourForMonth(deptIdInt, waitTimeReq.getDate()));
+            case "year":
+                return extractAvgWaitTimes(dashRepository.averageWaitTimeByHourForYear(deptIdInt, waitTimeReq.getDate()));
+            default:
+                throw new IllegalArgumentException("Invalid period specified: " + waitTimeReq.getPeriod());
         }
     }
 
-    public List<Double> calculateAverageWaitTimeByPeriod(String deptId, String period, LocalDate date) {
-        try {
-            // String을 Integer로 변환
-            Integer deptIdInt = Integer.parseInt(deptId);
-
-            switch (period.toLowerCase()) {
-                case "day":
-                    return calculateAverageWaitTimeByHourForDay(deptIdInt.toString(), date);
-                case "month":
-                    return calculateAverageWaitTimeByHourForMonth(deptIdInt.toString(), date);
-                case "year":
-                    return calculateAverageWaitTimeByHourForYear(deptIdInt.toString(), date);
-                default:
-                    throw new IllegalArgumentException("Invalid period specified: " + period);
-            }
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid deptId format: " + deptId);
-        }
-    }
-
-    private List<Double> calculateAverageWaitTimeByHourForDay(String deptId, LocalDate date) {
-        try {
-            Integer deptIdInt = Integer.parseInt(deptId);
-            List<Object[]> results = dashRepository.averageWaitTimeByHourForDay(deptIdInt, date);
-            return extractAvgWaitTimes(results);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid deptId format: " + deptId, e);
-        }
-    }
-
-    private List<Double> calculateAverageWaitTimeByHourForMonth(String deptId, LocalDate date) {
-        try {
-            Integer deptIdInt = Integer.parseInt(deptId);
-            List<Object[]> results = dashRepository.averageWaitTimeByHourForMonth(deptIdInt, date);
-            return extractAvgWaitTimes(results);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid deptId format: " + deptId, e);
-        }
-    }
-
-    private List<Double> calculateAverageWaitTimeByHourForYear(String deptId, LocalDate date) {
-        try {
-            Integer deptIdInt = Integer.parseInt(deptId);
-            List<Object[]> results = dashRepository.averageWaitTimeByHourForYear(deptIdInt, date);
-            return extractAvgWaitTimes(results);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid deptId format: " + deptId, e);
+    private LocalDateTime resolveEndDateTime(String period, LocalDate endDate) {
+        switch (period.toLowerCase()) {
+            case "day": return endDate.atTime(23, 59, 59);
+            case "month": return endDate.withDayOfMonth(endDate.lengthOfMonth()).atTime(23, 59, 59);
+            case "year": return endDate.withMonth(12).withDayOfMonth(31).atTime(23, 59, 59);
+            default: throw new IllegalArgumentException("Invalid period specified: " + period);
         }
     }
 
     private List<Double> extractAvgWaitTimes(List<Object[]> results) {
         List<Double> avgWaitTimes = new ArrayList<>();
         for (Object[] result : results) {
-            // 첫 번째 요소는 시간, 두 번째 요소는 평균 대기 시간
-            if (result[1] instanceof BigDecimal) {
-                BigDecimal avgWaitTimeBigDecimal = (BigDecimal) result[1]; // 평균 대기 시간
-                avgWaitTimes.add(avgWaitTimeBigDecimal.doubleValue()); // BigDecimal을 Double로 변환
-            } else if (result[1] instanceof Double) {
-                avgWaitTimes.add((Double) result[1]); // Double인 경우 바로 추가
-            } else {
-                // 예상하지 못한 타입 처리 (필요시 예외 처리 추가)
-                throw new CustomException("Unexpected type for average wait time: " + result[1].getClass().getName());
-            }
+            avgWaitTimes.add(((BigDecimal) result[1]).doubleValue());
         }
         return avgWaitTimes;
     }
 
-    public Integer getBranchCustomerCount(BranchCustomerCountReq request) {
-        try {
-            // deptId String -> Integer 변환
-            Integer deptIdInt = Integer.parseInt(request.getDeptId());
+    public List<Map<String, String>> getSummaryData(SummaryRequest request) {
+        Integer customerCount = dashRepository.getCustomerCount(request.getDeptId(), request.getStartDate(), request.getEndDate());
+        Double averageWaitTime = dashRepository.getAverageWaitTime(request.getDeptId(), request.getStartDate(), request.getEndDate());
 
-            // LocalDate -> LocalDateTime 변환
-            LocalDateTime startDateTime = request.getStartDate().atStartOfDay();
-            LocalDateTime endDateTime = request.getEndDate().atTime(23, 59, 59);
+        Map<String, String> customerData = Map.of("title", "내점 고객 수", "value", customerCount + "명");
+        Map<String, String> waitTimeData = Map.of("title", "대기 시간 평균", "value", averageWaitTime + "분");
 
-            return dashRepository.countByBranchAndDate(deptIdInt, startDateTime, endDateTime);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid deptId format: " + request.getDeptId(), e);
-        }
+        return List.of(customerData, waitTimeData);
+    }
+
+    public Map<String, Object> getCustomerDataByWeek(SummaryRequest request) {
+        List<Object[]> results = dashRepository.findWeeklyCustomerData(request.getDeptId(), request.getStartDate(), request.getEndDate());
+        List<String> labels = Arrays.asList("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
+        List<Integer> data = new ArrayList<>(Collections.nCopies(7, 0));
+        results.forEach(result -> data.set(((Integer) result[0]) - 1, ((Long) result[1]).intValue()));
+        return Map.of("labels", labels, "data", data);
     }
 
     public List<Map<String, Object>> getAllBranches() {
-        List<Object[]> results = spotInfoRepository.findAllDeptIdAndDeptName();
-        return results.stream().map(row -> {
-            Map<String, Object> branch = new HashMap<>();
-            branch.put("dept_id", row[0]);
-            branch.put("dept_name", row[1]);
-            return branch;
-        }).toList();
+        return spotInfoRepository.findAllDeptIdAndDeptName().stream()
+                .map(row -> {
+                    Map<String, Object> branch = new HashMap<>();
+                    branch.put("dept_id", row[0]);
+                    branch.put("dept_name", row[1]);
+                    return branch;
+                })
+                .collect(Collectors.toList());
     }
 
-    public List<Map<String, String>> getSummaryData(String deptId, LocalDate startDate, LocalDate endDate) {
-        Integer customerCount = dashRepository.getCustomerCount(deptId, startDate, endDate);
-        Double averageWaitTime = dashRepository.getAverageWaitTime(deptId, startDate, endDate);
+    public Map<String, Object> getCustomerChartData(CustomerChartRequest request) {
+        String period = request.getPeriod();
+        LocalDate startDate = request.getStartDate();
+        LocalDate endDate = request.getEndDate();
+        Integer deptId = Integer.parseInt(request.getDeptId());
 
-        List<Map<String, String>> summaryData = new ArrayList<>();
+        Map<String, Object> result = new HashMap<>();
+        List<Object[]> data;
 
-        Map<String, String> customerData = new HashMap<>();
-        customerData.put("title", "내점 고객 수");
-        customerData.put("value", customerCount + "명");
-        summaryData.add(customerData);
-
-        Map<String, String> waitTimeData = new HashMap<>();
-        waitTimeData.put("title", "대기 시간 평균");
-        waitTimeData.put("value", averageWaitTime + "분");
-        summaryData.add(waitTimeData);
-
-        return summaryData;
-    }
-
-    public Map<String, Object> getCustomerDataByWeek(String deptId, LocalDate startDate, LocalDate endDate) {
-        List<Object[]> results = dashRepository.findWeeklyCustomerData(deptId, startDate, endDate);
-
-        // 요일 라벨 생성
-        List<String> labels = Arrays.asList("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
-
-        // 결과 데이터를 매핑할 리스트
-        List<Integer> data = new ArrayList<>(Collections.nCopies(7, 0));
-
-        for (Object[] result : results) {
-            int dayOfWeek = ((Integer) result[0]) - 1; // 요일 인덱스(1~7) - 1로 보정
-            int count = ((Long) result[1]).intValue(); // 고객 수
-            data.set(dayOfWeek, count);
+        switch (period.toLowerCase()) {
+            case "day":
+                data = dashRepository.getCustomerCountByHour(deptId, startDate);
+                result.put("labels", getHourlyLabels());
+                break;
+            case "month":
+                data = dashRepository.getCustomerCountByDay(deptId, startDate, endDate);
+                result.put("labels", getMonthlyLabels(startDate));
+                break;
+            case "year":
+                data = dashRepository.getCustomerCountByMonth(deptId, startDate, endDate);
+                result.put("labels", getYearlyLabels(startDate, endDate));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid period: " + period);
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("labels", labels);
-        response.put("data", data);
-
-        return response;
+        result.put("data", data.stream().map(record -> record[1]).toArray());
+        return result;
     }
 
+    private List<String> getHourlyLabels() {
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < 24; i++) {
+            labels.add(i + "시");
+        }
+        return labels;
+    }
+
+    private List<String> getMonthlyLabels(LocalDate startDate) {
+        int daysInMonth = startDate.lengthOfMonth();
+        List<String> labels = new ArrayList<>();
+        for (int i = 1; i <= daysInMonth; i++) {
+            labels.add(i + "일");
+        }
+        return labels;
+    }
+
+    private List<String> getYearlyLabels(LocalDate startDate, LocalDate endDate) {
+        // 연도별 레이블 생성 (5년)
+        int startYear = startDate.getYear();
+        int endYear = endDate.getYear();
+        List<String> labels = new ArrayList<>();
+        for (int year = startYear; year <= endYear; year++) {
+            labels.add(year + "년");
+        }
+        return labels;
+    }
 }

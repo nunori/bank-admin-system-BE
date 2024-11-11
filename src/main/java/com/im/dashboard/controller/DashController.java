@@ -1,7 +1,6 @@
+// DashController.java
 package com.im.dashboard.controller;
 
-import com.im.branchlayout.dto.WindowCountReq;
-import com.im.branchlayout.service.ElementService;
 import com.im.dashboard.dto.*;
 import com.im.dashboard.service.DashService;
 import lombok.RequiredArgsConstructor;
@@ -17,24 +16,36 @@ import java.util.Map;
 public class DashController {
 
     private final DashService dashService;
-    private final ElementService elementService;
 
     @PostMapping("/customers/count")
     public ResponseEntity<Integer> customerCount(@RequestBody CustomerCountReq countReq) {
         Integer customerCount = dashService.calculateCustomerCount(countReq);
         return ResponseEntity.ok(customerCount);
     }
-    
+
+    // 고객 차트 데이터 API
+    @PostMapping("/customers/chart-data")
+    public ResponseEntity<Map<String, Object>> getCustomerChartData(@RequestBody CustomerChartRequest request) {
+        Map<String, Object> data = dashService.getCustomerChartData(request);
+        return ResponseEntity.ok(data);
+    }
+
     @PostMapping("/customers/wait-time/avg")
     public ResponseEntity<List<Double>> customerWait(@RequestBody WaitTimeAvgByHourReq waitTimeReq) {
-        List<Double> avgWaitTime = dashService.calculateAverageWaitTimeByPeriod(waitTimeReq.getDeptId(), waitTimeReq.getPeriod(), waitTimeReq.getDate());
+        List<Double> avgWaitTime = dashService.calculateAverageWaitTimeByPeriod(waitTimeReq);
         return ResponseEntity.ok(avgWaitTime);
     }
 
-    @PostMapping("/customers/count/date-range")
-    public ResponseEntity<Integer> branchCustomerCount(@RequestBody BranchCustomerCountReq request) {
-        Integer customersCount = dashService.getBranchCustomerCount(request);
-        return ResponseEntity.ok(customersCount);
+    @PostMapping("/summary")
+    public ResponseEntity<List<Map<String, String>>> getSummaryData(@RequestBody SummaryRequest request) {
+        List<Map<String, String>> summaryData = dashService.getSummaryData(request);
+        return ResponseEntity.ok(summaryData);
+    }
+
+    @PostMapping("/customers/data")
+    public ResponseEntity<Map<String, Object>> getCustomerData(@RequestBody SummaryRequest request) {
+        Map<String, Object> data = dashService.getCustomerDataByWeek(request);
+        return ResponseEntity.ok(data);
     }
 
     @GetMapping("/branches")
@@ -42,17 +53,4 @@ public class DashController {
         List<Map<String, Object>> branches = dashService.getAllBranches();
         return ResponseEntity.ok(branches);
     }
-
-    @PostMapping("/summary")
-    public ResponseEntity<List<Map<String, String>>> getSummaryData(@RequestBody SummaryRequest request) {
-        List<Map<String, String>> summaryData = dashService.getSummaryData(request.getDeptId(), request.getStartDate(), request.getEndDate());
-        return ResponseEntity.ok(summaryData);
-    }
-
-    @PostMapping("/customers/data")
-    public ResponseEntity<Map<String, Object>> getCustomerData(@RequestBody SummaryRequest request) {
-        Map<String, Object> data = dashService.getCustomerDataByWeek(request.getDeptId(), request.getStartDate(), request.getEndDate());
-        return ResponseEntity.ok(data);
-    }
-
 }

@@ -22,6 +22,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginReq loginReq) {  // @Valid 추가
         log.info("Login request received for user: {}", loginReq.getUserNumber());
+        log.info("=== Login request received ===");
+        log.info("Request URL: /api/auth/login");
+        log.info("Request body: {}", loginReq);
         try {
             Map<String, Object> response = authService.login(loginReq);
             log.info("Login successful for user: {}", loginReq.getUserNumber());
