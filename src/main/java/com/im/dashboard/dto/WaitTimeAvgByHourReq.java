@@ -1,14 +1,19 @@
 package com.im.dashboard.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class WaitTimeAvgByHourReq {
     private String deptId;
-    private String period;
     private LocalDate date;
+    private String period;
+
+
+
 }

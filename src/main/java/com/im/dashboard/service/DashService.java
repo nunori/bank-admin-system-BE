@@ -27,7 +27,7 @@ public class DashService {
         return dashRepository.countCustomersByDeptIdAndDateRange(deptIdInt, startDateTime, endDateTime);
     }
 
-    public List<Double> calculateAverageWaitTimeByPeriod(WaitTimeAvgByHourReq waitTimeReq) {
+    public List<Double> calculateAverageWaitTimeByPeriod(WaitTimeData waitTimeReq) {
         Integer deptIdInt = Integer.parseInt(waitTimeReq.getDeptId());
         switch (waitTimeReq.getPeriod().toLowerCase()) {
             case "day":
@@ -60,7 +60,10 @@ public class DashService {
 
     public List<Map<String, String>> getSummaryData(SummaryRequest request) {
         Integer customerCount = dashRepository.getCustomerCount(request.getDeptId(), request.getStartDate(), request.getEndDate());
+
+        // averageWaitTime이 null이면 0으로 설정
         Double averageWaitTime = dashRepository.getAverageWaitTime(request.getDeptId(), request.getStartDate(), request.getEndDate());
+        averageWaitTime = (averageWaitTime != null) ? averageWaitTime : 0.0;
 
         Map<String, String> customerData = Map.of("title", "내점 고객 수", "value", customerCount + "명");
         Map<String, String> waitTimeData = Map.of("title", "대기 시간 평균", "value", averageWaitTime + "분");
@@ -109,6 +112,11 @@ public class DashService {
                 data = dashRepository.getCustomerCountByMonth(deptId, startDate, endDate);
                 result.put("labels", getYearlyLabels(startDate, endDate));
                 break;
+            case "custom":
+                // 커스텀 기간 처리 (startDate와 endDate를 기준으로 기간 내 데이터를 조회)
+                data = dashRepository.getCustomerCountByCustomRange(deptId, startDate, endDate);
+                result.put("labels", getCustomRangeLabels(startDate, endDate));
+                break;
             default:
                 throw new IllegalArgumentException("Invalid period: " + period);
         }
@@ -144,4 +152,16 @@ public class DashService {
         }
         return labels;
     }
+
+    private List<String> getCustomRangeLabels(LocalDate startDate, LocalDate endDate) {
+        List<String> labels = new ArrayList<>();
+        // 여기서 startDate와 endDate 사이의 날짜를 레이블로 추가
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            labels.add(currentDate.toString()); // 날짜 형식 예: "2024-11-01"
+            currentDate = currentDate.plusDays(1);
+        }
+        return labels;
+    }
+
 }
