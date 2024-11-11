@@ -2,7 +2,10 @@ package com.im.user.controller;
 
 import com.im.user.dto.UserLoginReq;
 import com.im.user.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,14 +14,23 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginReq loginReq) {
-        Map<String, Object> response = authService.login(loginReq); // 토큰 및 deptId 반환
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginReq loginReq) {  // @Valid 추가
+        log.info("Login request received for user: {}", loginReq.getUserNumber());
+        try {
+            Map<String, Object> response = authService.login(loginReq);
+            log.info("Login successful for user: {}", loginReq.getUserNumber());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Login failed for user: {}", loginReq.getUserNumber(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/refresh-token")

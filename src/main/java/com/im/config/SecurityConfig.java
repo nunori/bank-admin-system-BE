@@ -80,7 +80,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("api/users/register", "api/auth/login").permitAll()
+                        .requestMatchers("/api/users/register", "/api/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
